@@ -7,7 +7,7 @@ Correspondance should be addressed to [jeffrey.hanson@uqconnect.edu.au](mailto:j
 
 Source code for the manuscript entitled "_Distribution of funnel web spiders on Fraser Island_". 
 
-[Click here to download the manuscript.](https://github.com/paleo13/spider-distributions/raw/master/article/article.pdf) **Please note that it is as a joke and should not be taken seriously.**
+[Click here to download the manuscript.](https://github.com/paleo13/spider-distributions/raw/master/article/article.pdf) **Please note this is as a joke and should not be taken seriously.**
 
 Fork this repository and execute `make clean && make all` rerun all computational analyses.
 
