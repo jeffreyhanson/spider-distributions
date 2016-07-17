@@ -125,7 +125,7 @@ ggmap(fraserIsland.toner.MAP) +
 The results speak for themselves--no further discussion is necessary.
 
 # Data Accessibility
-All data, code, and results are available at \url{www.github.com/paleo13/spider-distributions} to replicate and validate this study. [Table S1](https://raw.githubusercontent.com/paleo13/spider-distributions/article/Table_S1.csv) contains data for the location and size of each spider hole. [Table S2](https://raw.githubusercontent.com/paleo13/spider-distributions/article/Table_S2.csv) contains data summarised for each transect.
+All data, code, and results are available at \url{www.github.com/paleo13/spider-distributions} to replicate and validate this study. [Table S1](https://raw.githubusercontent.com/paleo13/spider-distributions/master/article/Table_S1.csv) contains data for the location and size of each spider hole. [Table S2](https://raw.githubusercontent.com/paleo13/spider-distributions/master/article/Table_S2.csv) contains data summarised for each transect.
 
 ```{r, include=FALSE}
 ## save supporting information files

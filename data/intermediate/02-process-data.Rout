@@ -1,0 +1,249 @@
+
+R version 3.3.0 (2016-05-03) -- "Supposedly Educational"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ## load .rda
+> session::restore.session('data/intermediate/01-load-data.rda')
+Loading all data...
+Loading packages...
+
+Attaching package: 'magrittr'
+
+The following object is masked from 'package:ggmap':
+
+    inset
+
+Linked to JAGS 4.0.0
+Loaded modules: basemod,bugs
+
+Attaching package: 'R2jags'
+
+The following object is masked from 'package:coda':
+
+    traceplot
+
+Spam version 1.3-0 (2015-10-24) is loaded.
+Type 'help( Spam)' or 'demo( spam)' for a short introduction 
+and overview of this package.
+Help for individual functions is also obtained by adding the
+suffix '.spam' to the function name, e.g. 'help( chol.spam)'.
+
+Attaching package: 'spam'
+
+The following objects are masked from 'package:base':
+
+    backsolve, forwardsolve
+
+
+ # maps v3.1: updated 'world': all lakes moved to separate new #
+ # 'lakes' database. Type '?world' or 'news(package="maps")'.  #
+
+
+
+Attaching package: 'Hmisc'
+
+The following object is masked from 'package:fields':
+
+    describe
+
+The following objects are masked from 'package:base':
+
+    format.pval, round.POSIXt, trunc.POSIXt, units
+
+
+Attaching package: 'gridExtra'
+
+The following object is masked from 'package:Hmisc':
+
+    combine
+
+
+Attaching package: 'plotrix'
+
+The following object is masked from 'package:fields':
+
+    color.scale
+
+
+Attaching package: 'plyr'
+
+The following objects are masked from 'package:Hmisc':
+
+    is.discrete, summarize
+
+The following object is masked from 'package:maps':
+
+    ozone
+
+
+Attaching package: 'dplyr'
+
+The following objects are masked from 'package:plyr':
+
+    arrange, count, desc, failwith, id, mutate, rename, summarise,
+    summarize
+
+The following object is masked from 'package:gridExtra':
+
+    combine
+
+The following objects are masked from 'package:data.table':
+
+    between, last
+
+The following objects are masked from 'package:Hmisc':
+
+    combine, src, summarize
+
+The following objects are masked from 'package:stats':
+
+    filter, lag
+
+The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union
+
+
+Attaching package: 'tidyr'
+
+The following object is masked from 'package:magrittr':
+
+    extract
+
+This is vegan 2.4-0
+rgdal: version: 1.1-10, (SVN revision 622)
+ Geospatial Data Abstraction Library extensions to R successfully loaded
+ Loaded GDAL runtime: GDAL 1.10.1, released 2013/08/26
+ Path to GDAL shared files: /usr/share/gdal/1.10
+ Loaded PROJ.4 runtime: Rel. 4.8.0, 6 March 2012, [PJ_VERSION: 480]
+ Path to PROJ.4 shared files: (autodetected)
+ Linking to sp version: 1.2-3 
+rgeos version: 0.3-19, (SVN revision 524)
+ GEOS runtime version: 3.4.2-CAPI-1.8.2 r3921 
+ Linking to sp version: 1.2-3 
+ Polygon checking: TRUE 
+
+
+Attaching package: 'rgeos'
+
+The following object is masked from 'package:Hmisc':
+
+    translate
+
+
+Attaching package: 'raster'
+
+The following object is masked _by_ '.GlobalEnv':
+
+    select
+
+The following object is masked from 'package:tidyr':
+
+    extract
+
+The following object is masked from 'package:dplyr':
+
+    select
+
+The following object is masked from 'package:data.table':
+
+    shift
+
+The following objects are masked from 'package:Hmisc':
+
+    mask, zoom
+
+The following object is masked from 'package:magrittr':
+
+    extract
+
+
+Attaching package: 'testthat'
+
+The following object is masked from 'package:Hmisc':
+
+    describe
+
+The following object is masked from 'package:fields':
+
+    describe
+
+The following objects are masked from 'package:magrittr':
+
+    equals, is_less_than, not
+
+Checking rgeos availability: TRUE
+
+Attaching package: 'maptools'
+
+The following object is masked from 'package:Hmisc':
+
+    label
+
+Restoring search path...
+Done.
+> 
+> ### clean data
+> # remove extra rows
+> inp.DF %<>% filter(!is.na(Hole_Diameter))
+> # remove super large holes
+> inp.DF %<>% filter(Hole_Diameter < 100)
+> 
+> ### extract data for real holes
+> hole.DF <- filter(inp.DF, Hole_Diameter > 0)
+> 
+> ### generate visit/transect table
+> # create initial table
+> visit.DF <- inp.DF %>% 
++ 	group_by(Transect_Number,Date) %>%
++ 	mutate(start=min(Time,na.rm=TRUE), end=max(Time,na.rm=TRUE)) %>%
++ 	filter(Hole_Diameter > 0) %>%
++ 	group_by(Transect_Number,Date) %>%
++ 	summarise(observed=length(Date), start=first(start), end=first(end)) %>%
++ 	mutate(search_time=as.numeric(difftime(end, start, units='mins')))
+> 
+> # add in missing zeros
+> all.dates <- unique(visit.DF$Date)
+> visit.DF <- ddply(visit.DF, c('Transect_Number'), function(x) {
++ 	for (i in all.dates) {
++ 		if (!i %in% x$Date) {
++ 			x <- rbind(x, data.frame(Transect_Number=x$Transect_Number[1], Date=i, observed=0, start=NA, end=NA, search_time=NA))
++ 		}
++ 	}
++ 	return(x)
++ }) %>% arrange(as.numeric(Transect_Number), Date)
+> 
+> # double counts in transects 9-16 because only one side was sampled in a visit
+> visit.DF$observed[which(as.numeric(visit.DF$Transect_Number)>8)] <- visit.DF$observed[which(as.numeric(visit.DF$Transect_Number)>8)]*2
+> 
+> ### create matrix for jags
+> obs.MTX <- matrix(0, ncol=length(all.dates), nrow=n_distinct(visit.DF$Transect_Number))
+> for (i in seq_len(nrow(visit.DF))) {
++ 	obs.MTX[as.numeric(visit.DF$Transect_Number[i]),match(visit.DF$Date[i], all.dates)] <- visit.DF$observed[i]
++ }
+> 
+> ## save .rda
+> save.session('data/intermediate/02-process-data.rda', compress='xz')
+Saving search path..
+Saving list of loaded packages..
+Saving all data...
+Done.
+> 
+>  
+> 
+> proc.time()
+   user  system elapsed 
+  9.955   0.478  11.689 

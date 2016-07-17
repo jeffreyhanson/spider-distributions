@@ -14,7 +14,6 @@ gurobi.log
 .directory
 
 # cache
-data/intermediate/*
 code/rmarkdown/article_files/*
 code/rmarkdown/figures_files/*
 code/rmarkdown/supporting_information_files/*

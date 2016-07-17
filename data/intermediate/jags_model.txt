@@ -1,0 +1,20 @@
+
+model {
+	# Priors
+	lambda ~ dunif(0, 50)
+	p ~ dunif(0, 1)
+	
+	# Likelihood
+	for (i in 1:n.sites) {
+		# True state model for the only partially observed true state
+		site.number[i] ~ dpois(lambda) # True abundance state N at site i
+		for (j in 1:n.visits) {
+			# Observation model for the actual observations
+			obs.MTX[i,j] ~ dbin(p, site.number[i]) # Counts at i and j
+		}
+		site.occupancy[i] <-step(site.number[i]-1) # Occurrence indicator
+	}
+	
+	# Derived quantities
+	total.number <- sum(site.number[]) # Total population size ar R sites
+}
