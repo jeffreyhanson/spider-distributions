@@ -1,0 +1,10 @@
+title = "general parameters"
+
+[debug]
+threads = 1
+MIPGap = 0.9
+
+[release]
+threads = 12
+MIPGap = 0.01
+

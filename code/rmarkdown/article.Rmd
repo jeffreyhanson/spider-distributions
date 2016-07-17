@@ -1,0 +1,145 @@
+---
+title: "Distribution of funnel web spiders along a walking track"
+author: |
+  | Jeffrey O. Hanson$^1$
+  | $^1$ Correspondance should be addressed to jeffrey.hanson@uqconnect.edu.au
+date: "`r format(Sys.time(), '%d %B %Y')`"
+abstract: "Funnel web spiders are ferocious beasts that terrorise tourists near Lake Boomanjin. Here we aimed to map their distribution along the walking path to Lake Boomanjin. We split up the path into 8 transects and surveyed each transect 8 times over 8 days, and used open n-mixture models to estimate their population size. We estimated that over 800 spiders inhabit the walking path along the track. This dense infestation of spiders poses a serious threat to the safety of tourists."
+output:
+  rmarkdown::pdf_document:
+    toc: false
+    keep_tex: no
+    fig_caption: yes
+    includes:
+      in_header: [preamble.tex]
+fontsize: 11pt
+documentclass: article
+bibliography: references.bib
+csl: reference-style.csl
+---
+
+```{r, include=FALSE}
+# restore session
+setwd('../..')
+session::restore.session('data/final/results.rda')
+
+# load landmarks
+landmark.PDF <- rbind(
+	as.matrix(select(transect.DF, start_lon, start_lat)),
+	as.matrix(select(transect.DF[nrow(transect.DF),], end_lon, end_lat))
+)
+rownames(landmark.PDF) <- NULL
+landmark.PDF %<>% as.data.frame()
+names(landmark.PDF) <- c('long', 'lat')
+
+# load walk
+transect.SHP <- list()
+walk.MTX <- walk.SHP@lines[[1]]@Lines[[1]]@coords
+for (i in seq_len(nrow(transect.DF))) {
+	curr_start <- which.min(
+		c(rdist.earth(
+			as.matrix(transect.DF[i,c('start_lon', 'start_lat')]),
+			walk.MTX,
+			miles=FALSE
+		))
+	)
+	curr_end <- which.min(
+		c(rdist.earth(
+			as.matrix(transect.DF[i,c('end_lon', 'end_lat')]),
+			walk.MTX,
+			miles=FALSE
+		))
+	)
+	transect.SHP[[i]] <- Lines(
+		Line(walk.MTX[seq(curr_start, curr_end),]),
+		ID=as.character(i)
+	)
+}
+transect.SHP <- SpatialLines(
+	transect.SHP,
+	proj4string=CRS('+init=epsg:4326')
+)
+transect.SHP <- SpatialLinesDataFrame(
+	transect.SHP,
+	data=data.frame(id=seq_len(nrow(transect.DF)))
+)
+curr_rows <- grep('site.number', rownames(jags.fit$BUGSoutput$summary), fixed=TRUE)
+transect.SHP@data$estimated_n <- jags.fit$BUGSoutput$summary[curr_rows,'mean']
+transect.PDF <- transect.SHP %>% fortify()
+transect.PDF$estimated_n <- transect.SHP$estimated_n[as.numeric(transect.PDF$id)]
+
+# load google base map
+fraserIsland.sat.MAP <- get_map(location=gCentroid(walk.SHP)@coords[1,],
+	zoom=14, maptype='satellite'
+)
+fraserIsland.toner.MAP <- get_map(location=gCentroid(walk.SHP)@coords[1,],
+	zoom=14, maptype='toner-background'
+)
+```
+
+# Introduction
+Fraser island is a popular tourist attraction. It is home to a great many interesting flora and fauna. In addition, it has several famous sites. The most famous site, perhaps, is Lake Boomanjin. This magnificent water feature is visited by scores of individuals throughout the year. However, the walking track to Lake Boomanjin is lurking by a population of funnel web spiders. This population may pose a serious safety risk to tourists.
+
+We aimed to map the distribution of these hairy beasts along the walking track. Additionally, we aimed to understand the size of the spiders using the size of their holes as a proxy.
+
+# Methods
+The Boomanjin Walking track was divided into 16 transects (each approximately 370 m in length; Figure 1). Each transect was surveyed for spider holes once a day over eight days (11--14/07/2016, 16--20/07/2016). These surveys were conducted by a team consisting of two to three expert spider hunters. The size of each hole was measured to the nearest millimeter. The start and end times for each survey was recorded to assess search effort. 
+
+```{r, message=FALSE, echo=FALSE, fig.width=2.5, fig.height=2.5, fig.align='center', fig.cap='\\textit{Map of the study area. The line shows the location of the walking track. Points mark the start and end of the transects along the track.}'}
+# render map
+ggmap(fraserIsland.sat.MAP) +
+	geom_path(data=transect.PDF, aes(x=long, y=lat, group=group), color='grey90') +
+	geom_point(data=landmark.PDF, aes(x=long, y=lat), color='red', fill='red', size=2) +
+	geom_label(x=153.09, y=-25.556, label='Lake Boomanjin', size=2) +
+	geom_label(x=153.085, y=-25.572, label='Sand Blow', size=2) +
+	geom_label(x=153.098, y=-25.6, label='Dilli Village', size=2) +
+	theme_classic() + 
+	theme(axis.title=element_blank(), axis.text=element_blank(), axis.ticks=element_blank(), axis.line=element_blank())
+```
+
+Open $n$-mixture models were used to estimate the population size [@r1]. These models estimate the probability of detecting a spider in a given transect independent of the total number of spiders in the transect. Models were fit using the _R2jags_ _R_ package [@r2] (`r jags.params.LST[[MODE]]$iterations` total iterations; `r jags.params.LST[[MODE]]$burnin` burnin iterations; thinned by `r jags.params.LST[[MODE]]$thin` iterations; `r jags.params.LST[[MODE]]$chains`). Model convergence was assessed using $\hat{R}$ values. All statistical analyses were conducted in _R_ [version 3.3.0; @r3]. 
+
+# Results
+The total number of holes found in all visits was `r nrow(hole.DF)`. An average of `r round(mean(visit.DF$observed),2)` $\pm$ `r round(sd(visit.DF$observed),2)` SD pider holes were found in each visit to a given transect. Typically, transects were surveyed for `r round(mean(visit.DF$search_time,na.rm=TRUE),2)` minutes $\pm$ `r round(sd(visit.DF$search_time,na.rm=TRUE),2)` SD. Based on the open $n$-mixture models, the probability of detecting a spider hole in a given transect was estimated to be `r round(jags.fit$BUGSoutput$summary['p','mean'],2)` $\pm$ `r round(jags.fit$BUGSoutput$summary['p','sd'],2)` SD. The total population size along the track was estimated to be `r round(jags.fit$BUGSoutput$summary['total.number','mean'],2)` $\pm$ `r round(jags.fit$BUGSoutput$summary['total.number','sd'],2)` SD.
+
+The size of the spider holes were bimodally distributed (Figure 2). The spider holes tended to range between 0--10 mm and 20--35 mm. These results suggest that most of the spiders surveyed were either juveniles or adults.
+
+```{r, message=FALSE, echo=FALSE, fig.align='center', fig.width=2.5, fig.height=2.5, fig.cap='\\textit{Histogram showing the size distribution of spider holes.}'}
+ggplot(data=hole.DF, aes(x=Hole_Diameter)) + geom_histogram(binwidth=5) + theme_classic() +
+	theme(axis.line.x=element_line(), axis.line.y=element_line()) +
+	xlab('Hole diameter (mm)') + ylab('Frequency') 
+```
+
+The spider holes were mostly found in a single transect (transect `r which.max(jags.fit$BUGSoutput$summary[curr_rows,'mean'])` contained `r round((max(jags.fit$BUGSoutput$summary[curr_rows,'mean'])/sum(jags.fit$BUGSoutput$summary[curr_rows,'mean']))*100,2)` % of the population; Figure 3). 
+
+```{r, message=FALSE, echo=FALSE, fig.width=4, fig.height=4, fig.align='center', fig.cap='\\textit{Distribution of spider holes along the walking track. Lines show the transects used to sample the distribution of spiders along the walk. The color of each transect corresponds to their estimated number of spider holes using the open $n$-mixture model.}'}
+# render map
+ggmap(fraserIsland.toner.MAP) +
+	geom_path(data=transect.PDF, aes(x=long, y=lat, group=group, color=estimated_n), size=2) +
+	scale_color_gradient(name='Estimated\nabundance') +
+	theme_classic() + 
+	theme(axis.title=element_blank(), axis.text=element_blank(), axis.ticks=element_blank(), axis.line=element_blank())
+```
+
+# Discussion
+The results speak for themselves--no further discussion is necessary.
+
+# Data Accessibility
+All data, code, and results are available at \url{www.github.com/paleo13/spider-distributions} to replicate and validate this study. [Table S1](https://raw.githubusercontent.com/paleo13/spider-distributions/article/Table_S1.csv) contains data for the location and size of each spider hole. [Table S2](https://raw.githubusercontent.com/paleo13/spider-distributions/article/Table_S2.csv) contains data summarised for each transect.
+
+```{r, include=FALSE}
+## save supporting information files
+setwd('../..')
+
+# Table S1
+write.table(hole.DF, 'article/Table_S1.csv', sep=',', row.names=FALSE)
+
+# Table S2
+names(visit.DF) <- c("Transect_Number", "Date", "Number_Holes_Observed", "Start_Time", "End_Time", "Search_Time")
+visit.DF$Number_Holes_Estimated_From_Model <- jags.fit$BUGSoutput$summary[curr_rows,'mean'][as.numeric(visit.DF$Transect_Number)]
+visit.DF %>% select(Transect_Number:Number_Holes_Observed, Number_Holes_Estimated_From_Model, Start_Time:Search_Time)
+write.table(visit.DF, 'article/Table_S2.csv', sep=',', row.names=FALSE)
+```
+
+# References
+
