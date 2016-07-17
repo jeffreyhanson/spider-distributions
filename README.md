@@ -34,4 +34,3 @@ Fork this repository and execute `make clean && make all` rerun all computationa
 	+ pandoc
 	+ pandoc-citeproc
 	+ LaTeX
-
