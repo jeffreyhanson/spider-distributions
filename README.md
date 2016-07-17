@@ -17,7 +17,7 @@ Fork this repository and execute `make clean && make all` rerun all computationa
 	+ manuscript main text, figures and tables
 * data
 	+ _raw_: raw data used to run the analysis
-	+ _intermediate_: results generated during processing (eg. BayeScan output files)
+	+ _intermediate_: results generated during processing
 	+ _final_: results used in the paper
 * code
 	+ [_R_](www.r-project.org): scripts used to run the analysis 
