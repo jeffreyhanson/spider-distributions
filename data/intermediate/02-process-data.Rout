@@ -88,6 +88,10 @@ The following object is masked from 'package:maps':
 
     ozone
 
+------------------------------------------------------------------------------
+data.table + dplyr code now lives in dtplyr.
+Please library(dtplyr)!
+------------------------------------------------------------------------------
 
 Attaching package: 'dplyr'
 
@@ -173,6 +177,10 @@ The following object is masked from 'package:magrittr':
 
 Attaching package: 'testthat'
 
+The following object is masked from 'package:dplyr':
+
+    matches
+
 The following object is masked from 'package:Hmisc':
 
     describe
@@ -201,6 +209,8 @@ Done.
 > inp.DF %<>% filter(!is.na(Hole_Diameter))
 > # remove super large holes
 > inp.DF %<>% filter(Hole_Diameter < 100)
+> # remove rows missing transect numbers
+> inp.DF %<>% filter(Transect_Number != '')
 > 
 > ### extract data for real holes
 > hole.DF <- filter(inp.DF, Hole_Diameter > 0)
@@ -246,4 +256,4 @@ Done.
 > 
 > proc.time()
    user  system elapsed 
-  9.955   0.478  11.689 
+ 10.673   0.363  11.222 

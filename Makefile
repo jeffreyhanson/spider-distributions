@@ -1,8 +1,8 @@
 ## global variables
 # set parameters for inference 
-# MODE=release 
-# set parameters for debugging code
 MODE=release
+# set parameters for debugging
+# MODE=debug
 
 # main operations
 all: analysis manuscript
@@ -28,7 +28,7 @@ manuscript: article
 article: article/article.pdf
 
 article/article.pdf: code/rmarkdown/article.Rmd code/rmarkdown/references.bib code/rmarkdown/reference-style.csl
-	R -e "rmarkdown::render('code/rmarkdown/article.Rmd')"
+	R -e "rmarkdown::render('code/rmarkdown/article.Rmd', clean=FALSE)"
 	mv code/rmarkdown/article.pdf article/
 	rm article/article.md -f
 	rm article/article.utf8.md -f

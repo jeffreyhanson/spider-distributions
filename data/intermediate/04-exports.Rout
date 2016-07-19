@@ -88,6 +88,10 @@ The following object is masked from 'package:maps':
 
     ozone
 
+------------------------------------------------------------------------------
+data.table + dplyr code now lives in dtplyr.
+Please library(dtplyr)!
+------------------------------------------------------------------------------
 
 Attaching package: 'dplyr'
 
@@ -173,6 +177,10 @@ The following object is masked from 'package:magrittr':
 
 Attaching package: 'testthat'
 
+The following object is masked from 'package:dplyr':
+
+    matches
+
 The following object is masked from 'package:Hmisc':
 
     describe
@@ -206,4 +214,4 @@ Done.
 > 
 > proc.time()
    user  system elapsed 
- 77.980   1.696  90.629 
+ 80.558   1.880  95.574 

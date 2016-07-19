@@ -88,6 +88,10 @@ The following object is masked from 'package:maps':
 
     ozone
 
+------------------------------------------------------------------------------
+data.table + dplyr code now lives in dtplyr.
+Please library(dtplyr)!
+------------------------------------------------------------------------------
 
 Attaching package: 'dplyr'
 
@@ -173,6 +177,10 @@ The following object is masked from 'package:magrittr':
 
 Attaching package: 'testthat'
 
+The following object is masked from 'package:dplyr':
+
+    matches
+
 The following object is masked from 'package:Hmisc':
 
     describe
@@ -238,9 +246,9 @@ Compiling model graph
    Resolving undeclared variables
    Allocating nodes
 Graph information:
-   Observed stochastic nodes: 64
+   Observed stochastic nodes: 128
    Unobserved stochastic nodes: 18
-   Total graph size: 170
+   Total graph size: 234
 
 Initializing model
 
@@ -257,4 +265,4 @@ Done.
 > 
 > proc.time()
    user  system elapsed 
-463.499   4.296 532.257 
+844.546   3.704 896.148 

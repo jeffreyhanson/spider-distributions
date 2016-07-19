@@ -6,6 +6,8 @@ session::restore.session('data/intermediate/01-load-data.rda')
 inp.DF %<>% filter(!is.na(Hole_Diameter))
 # remove super large holes
 inp.DF %<>% filter(Hole_Diameter < 100)
+# remove rows missing transect numbers
+inp.DF %<>% filter(Transect_Number != '')
 
 ### extract data for real holes
 hole.DF <- filter(inp.DF, Hole_Diameter > 0)
