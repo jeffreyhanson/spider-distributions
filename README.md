@@ -22,7 +22,7 @@ Fork this repository and execute `make clean && make all` rerun all computationa
 * code
 	+ [_R_](www.r-project.org): scripts used to run the analysis 
 	+ _parameters_: files used to run analysis in [TOML format](https://github.com/toml-lang/toml)
-	+ [_rmarkdown_:](wwww.rmarkdown.rstudio.com) files used to compile them manuscript
+	+ [_rmarkdown_:](wwww.rmarkdown.rstudio.com) files used to compile the manuscript
 
 ### Software required
 
