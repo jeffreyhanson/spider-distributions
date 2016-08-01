@@ -1,7 +1,7 @@
 Distribution of funnel web spiders on Fraser Island
 ===================================================
 
-[Jeffrey O. Hanson](wwww.jeffrey-hanson.com)
+[Jeffrey O. Hanson](https://wwww.jeffrey-hanson.com)
 
 Correspondance should be addressed to [jeffrey.hanson@uqconnect.edu.au](mailto:jeffrey.hanson@uqconnect.edu.au)
 
