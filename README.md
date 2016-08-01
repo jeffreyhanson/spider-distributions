@@ -20,9 +20,9 @@ Fork this repository and execute `make clean && make all` rerun all computationa
 	+ _intermediate_: results generated during processing
 	+ _final_: results used in the paper
 * code
-	+ [_R_](www.r-project.org): scripts used to run the analysis 
+	+ [_R_](https://www.r-project.org): scripts used to run the analysis 
 	+ _parameters_: files used to run analysis in [TOML format](https://github.com/toml-lang/toml)
-	+ [_rmarkdown_:](wwww.rmarkdown.rstudio.com) files used to compile the manuscript
+	+ [_rmarkdown_:](https://www.rmarkdown.rstudio.com) files used to compile the manuscript
 
 ### Software required
 
